@@ -3,7 +3,7 @@ import { assert } from "./assert.js";
 export const resolveShader = async (path) => {
   const text = await resolveTextFile(path);
   const prefix = path.split("/").slice(0, -1).join("/");
-  const dependencies = resolveDependencies(prefix, text);
+  const dependencies = await resolveDependencies(prefix, text);
   return `${text}\n${dependencies.join("\n")}`;
 };
 
@@ -15,7 +15,7 @@ const resolveTextFile = async (path) => {
 
 /**
  * @param {string} text
- * @returns {string[]}
+ * @returns {Promise<string[]>}
  */
 const resolveDependencies = (prefix, text) => {
   const regex = /@include\s+"(?<path>[^"]+)"/g;
