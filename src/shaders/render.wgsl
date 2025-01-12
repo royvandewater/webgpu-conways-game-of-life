@@ -16,17 +16,10 @@
   let x = u32(gridDimensions.x * position.x / screenDimensions.x);
   let y = u32(gridDimensions.y * position.y / screenDimensions.y);
 
+  // It seems to be important that the index is an int because float indexing into the array
+  // appears to interpolate between the values.
   let index = x + (y * u32(gridDimensions.x));
   let color = f32(grid[index]);
 
   return vec4f(color, color, color, 1.0);
 }
-
-// // moves the coordinate to a -1 to 1 range, adjust for the camera's position and zoom
-// fn scaleCoordinate(coordinate: vec2f, minMaxValues: vec4f) -> vec2f {
-//   // First normalize the coordinate to 0-1 range
-//   let normalizedCoord = ((coordinate - minMaxValues.xy) / (minMaxValues.zw - minMaxValues.xy));
-
-//   // Convert to clip space (-1 to 1 range)
-//   return normalizedCoord * 2.0 - 1.0;
-// }
