@@ -2,7 +2,7 @@ import { autoResize } from "./autoResize.js";
 import { resolveShader } from "./resolveShader.js";
 
 /**
- * @param {{canvas: HTMLCanvasElement, device: GPUDevice, grid: Uint8Array, width: number, height: number}} options
+ * @param {{canvas: HTMLCanvasElement, device: GPUDevice, grid: Uint32Array, width: number, height: number}} options
  */
 export const render = async ({ canvas, device, grid, width, height }) => {
   const context = canvas.getContext("webgpu");
@@ -45,28 +45,37 @@ export const render = async ({ canvas, device, grid, width, height }) => {
   });
   device.queue.writeBuffer(verticesBuffer, 0, vertices);
 
-  // const gridBuffer = device.createBuffer({
-  //   label: "grid buffer",
-  //   size: grid.byteLength,
-  //   usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
-  // });
-  // device.queue.writeBuffer(gridBuffer, 0, grid);
+  const screenDimensions = Float32Array.from([canvas.width, canvas.height]);
+  const screenDimensionsBuffer = device.createBuffer({
+    label: "screen dimensions buffer",
+    size: screenDimensions.byteLength,
+    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+  });
+  device.queue.writeBuffer(screenDimensionsBuffer, 0, screenDimensions);
 
-  // const dimensions = Uint32Array.from([width, height]);
-  // const dimensionsBuffer = device.createBuffer({
-  //   label: "dimensions buffer",
-  //   size: dimensions.byteLength,
-  //   usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
-  // });
-  // device.queue.writeBuffer(dimensionsBuffer, 0, dimensions);
+  const gridDimensions = Float32Array.from([width, height]);
+  const gridDimensionsBuffer = device.createBuffer({
+    label: "dimensions buffer",
+    size: gridDimensions.byteLength,
+    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+  });
+  device.queue.writeBuffer(gridDimensionsBuffer, 0, gridDimensions);
+
+  const gridBuffer = device.createBuffer({
+    label: "grid buffer",
+    size: grid.byteLength,
+    usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
+  });
+  device.queue.writeBuffer(gridBuffer, 0, grid);
 
   const bindGroup = device.createBindGroup({
     label: "render bind group",
     layout: pipeline.getBindGroupLayout(0),
     entries: [
       { binding: 0, resource: { buffer: verticesBuffer } },
-      // { binding: 1, resource: { buffer: dimensionsBuffer } },
-      // { binding: 2, resource: { buffer: gridBuffer } },
+      { binding: 1, resource: { buffer: screenDimensionsBuffer } },
+      { binding: 2, resource: { buffer: gridDimensionsBuffer } },
+      { binding: 3, resource: { buffer: gridBuffer } },
     ],
   });
 
