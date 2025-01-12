@@ -1,0 +1,9 @@
+{
+  "version": "4",
+  "redirects": {
+    "https://esm.sh/build": "https://esm.sh/v135/build"
+  },
+  "remote": {
+    "https://esm.sh/v135/build": "f83c0ec7363671d873546f8758b36a68897ec140da85112edd2871031520f6f1"
+  }
+}
